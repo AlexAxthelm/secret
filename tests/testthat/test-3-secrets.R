@@ -235,6 +235,29 @@ test_that("udpate a secret", {
   
 })
 
+test_that("big secrets", {
+  skip_on_cran()
+  skip("Needs a lot of memory and time")
+  
+  # I know that I don't need to use secret to encrypt a a raw vector, but this
+  # is the most reliable way to make an object that will stop aes_cbc_encrypt
+  big_secret <- raw(2^31)
+  # format(object.size(big_secret), units = "Gb")
+  # [1] "2 Gb"
+
+  expect_null(
+    add_secret("secret_big", big_secret, users = alice, vault = pkg_root)
+  )
+
+  expect_equal(
+    get_secret("secret_big", key = alice_private_key, vault = pkg_root),
+    big_secret
+  )
+
+  unlink(big_secret)
+
+})
+
 test_that("error messages", {
   unlink(pkg_root, recursive = TRUE)
   pkg_root <- make_pkg_root()
